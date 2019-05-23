@@ -1,0 +1,32 @@
+{
+  "name": "opuntia",
+  "version": "0.1.0",
+  "description": "A framework for WEB API building",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.hiq.ru/eProtection/Backend.git"
+  },
+  "author": "Igor Mayachenkov",
+  "license": "MIT",
+  "dependencies": {
+    "cookie": "^0.3.1",
+    "ws": "^6.1.3"
+  },
+  "directories": {},
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "devDependencies": {
+    "opn": "^5.4.0"
+  },
+  "files":[
+    "package.json",
+    "LICENSE",
+    "README.md",
+    "doc/**",
+    "index.js",
+    "main.js",
+    "files.js"
+  ]
+}
