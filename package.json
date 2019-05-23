@@ -1,11 +1,11 @@
 {
   "name": "opuntia",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A framework for WEB API building",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.hiq.ru/eProtection/Backend.git"
+    "url": "https://github.com/igormayachenkov/opuntia.git"
   },
   "author": "Igor Mayachenkov",
   "license": "MIT",
