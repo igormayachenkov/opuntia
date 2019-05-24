@@ -1,5 +1,5 @@
 "use strict"
-const api = require("../index.js");
+const opuntia = require("../");
 
 //-------------------------------------------------------------------------------------------------
 // DATA
@@ -10,16 +10,14 @@ var books = [
 
 //-------------------------------------------------------------------------------------------------
 // CREATE & CONFIG API SERVER
-var server = api.createServer();
-
-server.config = {
+var config = {
 	VERSION		: '1.0.0',
 	NAME       	: 'Books WEB API server',
 	PROTOCOL   	: 'http:',
 	PORT       	: 8080
 };
 
-server.router = {
+var router = {
 	$title: "The router example",
 	h_get:{
 		title:"Info",
@@ -30,21 +28,21 @@ server.router = {
 	router: {
 		$title: "Rourer",
 		$descr: "The endpoint to load the router for documentation tool",
-		h_get : api.getRouter
+		h_get : opuntia.getRouter
 	},
 	// HTML server
 	doc: 	{
 		$title: "Documentation HTML-server",
 		$descr: "To load static content",
-		_files:	api.getLocalPath()+'/doc/',
-		h_get: 	api.files.get
+		_files:	opuntia.getLocalPath()+'/doc/',
+		h_get: 	opuntia.files.get
 	},
 	// WEB API server
 	books: {	
 		$title: "Books",
 		$descr: "The sample WEB API server",
 		//_database:	mongo.db("books"),
-		//_auth:		api.auth,
+		//_auth:		opuntia.auth,
 		h_get:{
 			title:"Info",
 			descr:"Public information about Books",
@@ -120,7 +118,8 @@ server.router = {
 	}
 };
 
-// START API SERVER
+// CREATE & START API SERVER
+var server = opuntia.createServer(config, router);
 server.listen(function(){
 	// START STATIC WEB SERVER
 	var testUrl   = "http://localhost:"+server.config.PORT+"/doc/index.html";

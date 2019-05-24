@@ -1,6 +1,11 @@
 exports.files = require("./files.js");
 
-exports.createServer = function(){return require("./main.js");}
+exports.createServer = function(config,router){
+	var server = require("./server.js");
+	server.config = config;
+	server.router = router;
+	return server;
+}
 exports.getLocalPath = function(){return __dirname;}
 
 //--------------------------------------------------------------------
