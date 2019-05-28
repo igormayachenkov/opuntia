@@ -28,7 +28,7 @@ var router = {
 	router: {
 		$title: "Rourer",
 		$descr: "The endpoint to load the router for documentation tool",
-		h_get : opuntia.getRouter
+		h_get : opuntia.Server.getRouterHandler()
 	},
 	// HTML server
 	doc: 	{
@@ -119,7 +119,7 @@ var router = {
 };
 
 // CREATE & START API SERVER
-var server = opuntia.createServer(config, router);
+var server = new opuntia.Server(config, router);
 server.listen(function(){
 	// START STATIC WEB SERVER
 	var testUrl   = "http://localhost:"+server.config.PORT+"/doc/index.html";
