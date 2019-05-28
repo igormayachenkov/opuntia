@@ -100,7 +100,7 @@ module.exports = class {
 		if(!this.WebSocket)
 			this.WebSocket = require('ws'); 
 
-		const wss = new WebSocket.Server({ noServer: true });
+		const wss = new this.WebSocket.Server({ noServer: true });
 
 		wss.on('connection', function connection(ws) {
 			if(ws.r && ws.r.node.h_ws)
