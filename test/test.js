@@ -35,6 +35,7 @@ var router = {
 		$title: "Documentation HTML-server",
 		$descr: "To load static content",
 		_files:	opuntia.getLocalPath()+'/doc/',
+		_default:'index.html',
 		h_get: 	opuntia.files.get
 	},
 	// WEB API server

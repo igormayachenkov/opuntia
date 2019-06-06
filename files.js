@@ -22,21 +22,56 @@ const map = {
 };
 
 // SEND THE FILE CONTENT
-var get = function(filename, r){
-	// Verify filename
-	if(!filename){		
-		r.server.endWithError(r,"filename is undefined");
+var get = function(r){
+	// Calculate filename by r.path segments
+	r.file = getFilePath(r, getFilename(r));
+
+	// Check existance
+	if(!fs.existsSync(r.file)){
+		r.server.endWithError(r,"File not found");
 		return;
 	}
-	// Get file extension
-	var i = filename.lastIndexOf('.');
+
+	// Read the file parameters
+	var stat = fs.lstatSync(r.file);
+
+	// Special case for directory
+	if(stat.isDirectory()){
+		if(r.path.src.charAt(r.path.src.length-1)==='/'){
+			// User means this directory exactly!
+			if(r.default){
+				// Add default filename
+				r.path.segments.push(r.default);
+				get(r);//reccurent call
+				return;
+			}else{
+				// => error
+				r.server.endWithError(r,"It is a directory");
+				return;
+			}
+		}else{
+			// User means the dir as a file (without /)
+			if(r.default){
+				// => redirect the stupid guy to the right way!
+				// to open default page in this directory
+				r.server.redirectPermanently(r, r.path.src+'/');
+				return;
+			}else{
+				// No default page
+				// => error
+				r.server.endWithError(r,"It is a directory");
+				return;
+			}
+		}
+	}
+
+	// Set content type by the file extension
+	var i = r.file.lastIndexOf('.');
 	if(i>=0)
-		var ext = filename.slice(i);
-	//console.log('EXT: ',ext,' ',map[ext]);
-	
-	// SINGLE FILE
-	r.file = getFilePath(r, filename);
+		var ext = r.file.slice(i);
 	r.content_type = ext && map[ext] ?  map[ext] : "application/octet-stream";
+	
+	// Send single file
 	sendFile(r);
 }
 // SEND FILE & CLOSE REQUEST
@@ -59,8 +94,7 @@ var sendFile = function(r){
 }
 
 // RECEIVE THE FILE CONTENT
-var post = function(filename, r){
-	
+var post = function(r){
 	// VERIFY content-type & content-length
 	var contentType   = r.request.headers['content-type'];
 	var contentLength = r.request.headers['content-length'];
@@ -79,6 +113,7 @@ var post = function(filename, r){
 	}
 	
 	// Verify filename
+	var filename = getFilename(r);
 	if(!filename){		
 		r.server.endWithError(r,"filename is undefined");
 		return;
@@ -88,7 +123,7 @@ var post = function(filename, r){
 	try{
 		var file = fs.openSync(getFilePath(r, filename), 'w')
 	}catch(e){
-		r.server.endWithError(r,"file open error: " + e);
+		r.server.endWithError(r,"File open error. filename: "+filename);
 		return;
 	}
 
@@ -107,7 +142,7 @@ var post = function(filename, r){
 		try{
 			fs.closeSync(file)
 		}catch(e){
-			r.server.endWithError(r,"file close error: " + e);
+			r.server.endWithError(r,"File open error. filename: "+filename);
 			return;
 		}
 		// Send OK
@@ -121,7 +156,6 @@ var getFilename = function(r){
 		filename += d + r.path.segments[i];
 		d="/"
 	}
-	//console.log("FILENAME: ", filename);
 	return filename;
 }
 
@@ -135,9 +169,8 @@ exports.get = {
 	action: function(r){
 		// Check parameters
 		if(!r.files){throw r.server.endWithErrorCode(r,500,"r.files is undefined");return;}
-
 		// DO ACTION
-		get( getFilename(r), r);
+		get(r);
 	}
 }
 exports.post = {
@@ -151,7 +184,7 @@ exports.post = {
 		// Check parameters
 		if(!r.files){throw r.server.endWithErrorCode(r,500,"r.files is undefined");return;}
 		// DO ACTION
-		post(getFilename(r), r);
+		post(r);
 	}
 }
 //---external-interface------------------------------------------------

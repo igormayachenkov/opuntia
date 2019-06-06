@@ -40,5 +40,8 @@ The handler's name must have the nex format:
 The router should be exposed in this way. The standard path is /router. You could just open /doc/index.html in this case. Otherwise use the next query doc/index.html?router=<path_to_router>
 
 ## Module "files"
-Allows files upload and download. 
-Parameter "_files" must contain a valid path on the drive.
+Allows upload and download files. So could be used as a static WEB-server.
+| Parameter | Function   |
+| ------------- |:-----------|
+| `_files`      | Required. Contains a path to your files. Must end with '/' |
+| `_default`    | Default filename in the directory. Just for GET request. ex:'index.html' |

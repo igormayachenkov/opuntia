@@ -362,6 +362,18 @@ module.exports = class {
 		if(r.response) this.logResult(r,"");
 	}
 
+	// Redirect Permanently
+	redirectPermanently(r, url){
+		r.response.writeHead(
+			301,// (Moved Permanently)
+			{ "Location": url }
+		);
+		r.response.end();	
+
+		// Log result
+		if(r.response) this.logResult(r, "redirected to "+url);
+	}
+
 	// RECEIVE POST DATA AS JSON
 	// fill the next field in r object: 
 	//		- data
