@@ -18,7 +18,7 @@ A property name prefix defines the property type:
 | Name prefix | Property type | Function   |
 | :---------: |---------------|:----------|
 | `"$"`       | comment       | will be ignored. $title,$descr used id auto documentation tool |
-| `"_"`       | parameter     | the value will be copied to r-object (without the prefix) |
+| `"_"`       | parameter     | the value will be copied to r-object |
 | `"h_"`      | handler       | defines the endpoint handler (or websocket connection point) |
 | `no prefix` | branch        | defines the next child branch of the router tree |
 
@@ -45,3 +45,8 @@ Allows upload and download files. So could be used as a static WEB-server.
 | ------------- |:-----------|
 | `_files`      | Required. Contains a path to your files. Must end with '/' |
 | `_default`    | Default filename in the directory. Just for GET request. ex:'index.html' |
+
+## Auth interface
+If parameter `_auth` is defined it is used for authorization. 
+The object stored as this parameter must implement method checkAuthorized(r,next)
+

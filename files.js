@@ -2,7 +2,7 @@
 var fs 			= require('fs');
 
 var getFilePath = function(r, filename){
-	return r.files+filename;
+	return r._files+filename;
 }
 
 // maps file extention to MIME typere
@@ -39,9 +39,9 @@ var get = function(r){
 	if(stat.isDirectory()){
 		if(r.path.src.charAt(r.path.src.length-1)==='/'){
 			// User means this directory exactly!
-			if(r.default){
+			if(r._default){
 				// Add default filename
-				r.path.segments.push(r.default);
+				r.path.segments.push(r._default);
 				get(r);//reccurent call
 				return;
 			}else{
@@ -51,7 +51,7 @@ var get = function(r){
 			}
 		}else{
 			// User means the dir as a file (without /)
-			if(r.default){
+			if(r._default){
 				// => redirect the stupid guy to the right way!
 				// to open default page in this directory
 				r.server.redirectPermanently(r, r.path.src+'/');
@@ -168,7 +168,7 @@ exports.get = {
 	responseBodyType:"file",
 	action: function(r){
 		// Check parameters
-		if(!r.files){throw r.server.endWithErrorCode(r,500,"r.files is undefined");return;}
+		if(!r._files){throw r.server.endWithErrorCode(r,500,"parameter _files is undefined");return;}
 		// DO ACTION
 		get(r);
 	}
@@ -182,7 +182,7 @@ exports.post = {
 	responseBodyType:"json",
 	action: function(r){
 		// Check parameters
-		if(!r.files){throw r.server.endWithErrorCode(r,500,"r.files is undefined");return;}
+		if(!r._files){throw r.server.endWithErrorCode(r,500,"parameter _files is undefined");return;}
 		// DO ACTION
 		post(r);
 	}

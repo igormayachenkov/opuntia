@@ -60,15 +60,14 @@ module.exports = class {
 
 			//---------------------------------------------
 			// COPY & APPLY PARAMETERS
-			// Copy parameters without prefix 
+			// Copy parameters
 			for(const k in node){
 				if(k.startsWith("_"))
-					r[k.substr(1)] = node[k];
+					r[k] = node[k];
 			}
 			// "auth" authentication object
 			// - keep it till the action
 			if(node._auth){
-				//r.auth = node._auth;
 				r.authLevel = r.path.level; // remember auth level
 			}
 
@@ -145,8 +144,8 @@ module.exports = class {
 
 		// Check authorization if exists and do action
 		// "skipAuth" - skip autherization for the action
-		if(r.auth)
-			r.auth.checkAuthorized(r, connectSocket);
+		if(r._auth)
+			r._auth.checkAuthorized(r, connectSocket);
 		else
 			connectSocket();
 	}
@@ -210,8 +209,8 @@ module.exports = class {
 
 			// Check authorization if exists and do action
 			// "skipAuth" - skip autherization for the action
-			if(r.auth && !handler.skipAuth)
-				r.auth.checkAuthorized(r,doAction);
+			if(r._auth && !handler.skipAuth)
+				r._auth.checkAuthorized(r,doAction);
 			else
 				doAction();
 
