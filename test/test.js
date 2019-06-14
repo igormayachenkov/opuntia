@@ -10,13 +10,6 @@ var books = [
 
 //-------------------------------------------------------------------------------------------------
 // CREATE & CONFIG API SERVER
-var config = {
-	VERSION		: '1.0.0',
-	NAME       	: 'Books WEB API server',
-	PROTOCOL   	: 'http:',
-	PORT       	: 8080
-};
-
 var router = {
 	$title: "The router example",
 	h_get:{
@@ -120,7 +113,11 @@ var router = {
 };
 
 // CREATE & START API SERVER
-var server = new opuntia.Server(config, router);
+var server = new opuntia.Server(router, {
+		PROTOCOL   	: 'http:',
+		port       	: 8080
+	}
+);
 server.listen(function(){
 	// START STATIC WEB SERVER
 	var testUrl   = "http://localhost:"+server.config.PORT+"/doc/index.html";

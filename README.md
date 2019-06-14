@@ -50,3 +50,14 @@ Allows upload and download files. So could be used as a static WEB-server.
 If parameter `_auth` is defined it is used for authorization. 
 The object stored as this parameter must implement method checkAuthorized(r,next)
 
+## Config
+To the Server constructor takes two parameters: config & router.
+Your config property names could be in any case (lower or upper) but will be tranlated to upper case in Server class constructor.
+The config properties:
+| Name | Default | Function   |
+| ------------- | ------------- |:-----------|
+| `PROTOCOL`    | 'http:'   | The web server protocol. Possible values: 'http:', 'https:' |
+| `PORT`        | 8080 for http, 443 for https | The web server port. |
+| `HTTPS_KEY`   | undefined | path to a private key file for https protocol. |
+| `HTTPS_CRT`   | undefined | path to a certificate file for https protocol. |
+

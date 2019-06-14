@@ -3,11 +3,28 @@ const url		= require("url");
 
 module.exports = class {
 
-	constructor(config, router){
-
-		this.config = config;
+	constructor(router, config){
+		// Verify router
+		if(!router) throw 'Error: parameter "router" is undefined';
 		this.router = router;
-
+		// Verify config
+		if(!config) config = {};
+		this.config = {};
+		for(let key in config)
+			this.config[key.toUpperCase()] = config[key]; // translate to upper case for internal use
+		if(!this.config.PROTOCOL) this.config.PROTOCOL = 'http:';
+		switch(this.config.PROTOCOL){
+			case 'http:' : 
+				if(!this.config.PORT) this.config.PORT = 8080; 
+				break;
+			case 'https:': 
+				if(!this.config.PORT) this.config.PORT = 443;  
+				if(!this.config.HTTPS_KEY || !this.config.HTTPS_CRT) 
+					throw 'Error: config.HTTPS_KEY or config.HTTPS_CRT is undefined';
+				break;
+			default: 
+				throw 'Error: the config.PROTOCOL value "'+this.config.PROTOCOL+'" is incorrect';
+		}
 	}
 
 	//-------------------------------------------------------------------------------------------------
@@ -254,8 +271,8 @@ module.exports = class {
 			const fs = require("fs");
 			var webServer = require("https").createServer(
 				{
-					key:  fs.readFileSync(this.config.KEY), //'private-key.pem'),
-					cert: fs.readFileSync(this.config.CERT) //'certificate.pem')
+					key:  fs.readFileSync(this.config.HTTPS_KEY), //'private-key.pem'),
+					cert: fs.readFileSync(this.config.HTTPS_CRT)  //'certificate.pem')
 				}
 			);
 		}else{
@@ -276,16 +293,20 @@ module.exports = class {
 	}
 
 	onStart(onStart){
+		try{
+			var pkg = require(process.cwd()+'/package.json');
+		}catch(e){}
 		console.log("\n-----------------------------------------------------------");
-		console.log("                 REST API server started ");
-		console.log("    VERSION:           " + this.config.VERSION);
+		console.log("                 WEB API SERVER STARTED ");
+		if(pkg){
+		console.log("    NAME:              " + pkg.name);
+		console.log("    VERSION:           " + pkg.version);
+		console.log("    DESCRIPTION:       " + pkg.description);
+		}
 		console.log("    PROTOCOL:          " + this.config.PROTOCOL);
 		console.log("    PORT:              " + this.config.PORT);
-		//server.setTimeout(120000);
-		//console.log("    timeout:           " + webServer.timeout);
-		//console.log("    keepAliveTimeout:  " + webServer.keepAliveTimeout);
-
-		// Verify nodes
+		// Verify & print the router nodes
+		console.log("    ROUTER:            ");
 		this.verifyNode(0, "/", this.router);
 		console.log("\n-----------------------------------------------------------");
 
