@@ -394,7 +394,6 @@ module.exports = class {
 
 		// VERIFY content-length
 		var contentLength = r.request.headers['content-length'];
-		console.log('contentLength: '+contentLength);
 		if(!contentLength)
 			return this.endWithError(r,"Content-Length is undefined");
 			contentLength = parseInt(contentLength);
@@ -421,11 +420,8 @@ module.exports = class {
 			}catch(e){
 				return r.server.endWithError(r,"Can not parse the request data as JSON");
 			}
-			console.log(data);
-
 			// DO ACTION
 			callback(r);
-
 		});
 	}
 
