@@ -319,51 +319,34 @@ module.exports = class {
 	// COMMON
 
 	// Finish the response with the error
-	endWithErrorCode(r, code, error){
-		var response = r.response;
-		if(!response)response = r;// old format
-
-		response.statusCode = code;
-		response.write(error);
-		response.end();	
-
+	endWithErrorCode(r, code, errorText){
+		// r.response.writeHead(500,{
+		// 	"Content-Type":"text/plain",
+		// 	"Access-Control-Allow-Origin":"http://localhost"//"*"
+		// });
+		r.response.statusCode = code;
+		r.response.write(JSON.stringify({message:errorText}));
+		r.response.end();	
 		// Log result
-		if(r.response) this.logResult(r,error);
+		this.logResult(r, errorText);
 	}
 
 	// UNAUTHORIZED USER - NORMAL CASE
-	endUnauthorized(r, msg){
-		r.response.statusCode = 401;
-		r.response.write(msg);
-		r.response.end();	
-		// Log result
-		this.logResult(r, msg);
+	endUnauthorized(r, errorText){
+		this.endWithErrorCode(r,401,errorText)
 	}
-
 	// COMMON ERROR 
-	endWithError(r, error){
-		var response = r.response;
-		if(!response)response = r;// old format
-		
-		response.statusCode = 404;
-		/*response.writeHead(500,{
-			"Content-Type":"text/plain",
-			"Access-Control-Allow-Origin":"http://localhost"//"*"
-		});*/
-		response.write(error);
-		response.end();	
-
-		// Log result
-		if(r.response) this.logResult(r,error);
+	endWithError(r, errorText){
+		this.endWithErrorCode(r,404,errorText)
 	}
-
+	// File not found error
 	endNotFound(r){
 		this.endWithError(r, "resource "+r.path.src+" not found");
 	}
 
 	// Finish the response with the success
 	endWithSuccess(r, json){
-		r.server.endWithSuccessBinary(r, json ? JSON.stringify(json) : null);
+		this.endWithSuccessBinary(r, json ? JSON.stringify(json) : null);
 	}
 
 	// Finish the response with the success
@@ -379,7 +362,7 @@ module.exports = class {
 		r.response.end();
 
 		// Log result
-		if(r.response) this.logResult(r,"");
+		this.logResult(r,"");
 	}
 
 	// Redirect Permanently
@@ -396,36 +379,38 @@ module.exports = class {
 
 	// RECEIVE POST DATA AS JSON
 	// fill the next field in r object: 
-	//		- data
+	//		- data			
 	// 		- data_length
 	receivePOSTdata(r, callback){
 
-		// VERIFY content-type & content-length
+		// VERIFY content-type 
 		var contentType   = r.request.headers['content-type'];
+		if(!contentType)
+			return this.endWithError(r,"Content-Type is undefined");
+		if( contentType.search('application/json') < 0 
+		&&  contentType.search('text/plain') < 0 
+		&&  contentType.search('application/x-www-form-urlencoded') < 0 )
+			return this.endWithError(r,'unsupported Content-Type: '+contentType);
+
+		// VERIFY content-length
 		var contentLength = r.request.headers['content-length'];
-		//console.log("    POST content-type: "+contentType + '   content-length:'+contentLength);
-		if(!contentType){
-			this.endWithError(r,"Content-Type is undefined");  // TODO: this. WILL RAISE AN EXCEPTON!!!
-			return;
-		}
-		if(!contentLength){
-			this.endWithError(r,"Content-Length is undefined");
-			return;
-		}
-		contentLength = parseInt(contentLength);
-		if(contentType.search('application/x-www-form-urlencoded')<0){
-			this.endWithError(r,"Content-Type is unsupported");
-			return;
-		}
+		console.log('contentLength: '+contentLength);
+		if(!contentLength)
+			return this.endWithError(r,"Content-Length is undefined");
+			contentLength = parseInt(contentLength);
+		if(this.config.REQUEST_BODY_LIMIT && this.config.REQUEST_BODY_LIMIT<contentLength)
+			return this.endWithError(r,"The request body limit is exceeded");
+
 		
 		// LOAD request DATA
-		var data = "";
-		var length = 0;
+		var data = "";	// data as a string
+		var length = 0; // length of the request body in bytes (not the result string length)
 		r.request.addListener("data", function(chunk) {
-			//console.log("    "+new Date().toISOString() +typeof chunk:"+(typeof chunk)+"   chunk.length:"+chunk.length);
-			//console.log("        "+new Date().toISOString() + "   chunk.length: "+chunk.length);
-			data 	+= chunk;
-			length	+= chunk.length;
+			// Chunk is a Buffer https://nodejs.org/api/buffer.html
+			data 	+= chunk.toString('utf8')
+			length	+= chunk.length; 
+			// Check limit here too?
+			//...
 		});
 		
 		r.request.addListener("end", function() {
@@ -434,9 +419,9 @@ module.exports = class {
 				r.data_length = length;
 				r.data = JSON.parse(data);
 			}catch(e){
-				this.endWithError(r,"JSON parser error");
-				return;
+				return r.server.endWithError(r,"Can not parse the request data as JSON");
 			}
+			console.log(data);
 
 			// DO ACTION
 			callback(r);

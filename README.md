@@ -12,6 +12,19 @@ To make an API server based on the framework just make a router object with your
 2. For valid endpoint the handler's 'action' method is called with one argument 'r'. The 'r' argument contains all information for the request handling.
 3. The handler must close the request with success or error. 
 
+## Request Body Format (excliding module files)
+The request body must be a string encoded in UTF-8 format which could be parsed to JSON (by JSON.parce() method).
+In requests with a body the next headers must be defined:
+| Header | Description   |
+| ------------- |:-----------|
+| `Content-Length` | The content length in bytes. The maximum value is defined by config.REQUEST_BODY_LIMIT |
+| `Content-Type` | The content MIME type. Allowed values: `application/json`, `text/plain`, `application/x-www-form-urlencoded`  |
+
+## Responce Format (excliding module files)
+Respose is always in JSON format (Content-Type:`application/json`)
+On error the respoce data has the next format: {message:'error message text'}
+
+
 ## Router
 The router object defines the set of the endpoints. The router is just a JavaScript object where each property represents an URL path node.
 A property name prefix defines the property type:
@@ -60,4 +73,5 @@ The config properties:
 | `PORT`        | 8080 for http, 443 for https | The web server port. |
 | `HTTPS_KEY`   | undefined | path to a private key file for https protocol. |
 | `HTTPS_CRT`   | undefined | path to a certificate file for https protocol. |
+| `REQUEST_BODY_LIMIT`   | undefined | the number of bytes that are allowed in a request body |
 

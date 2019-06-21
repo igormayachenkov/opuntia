@@ -114,8 +114,9 @@ var router = {
 
 // CREATE & START API SERVER
 var server = new opuntia.Server(router, {
-		PROTOCOL   	: 'http:',
-		port       	: 8080
+		PROTOCOL   			: 'http:',
+		port       			: 8080,
+		REQUEST_BODY_LIMIT	: 1024 
 	}
 );
 server.listen(function(){
