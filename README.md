@@ -58,6 +58,7 @@ Allows upload and download files. So could be used as a static WEB-server.
 | ------------- |:-----------|
 | `_files`      | Required. Contains a path to your files. Must end with '/' |
 | `_default`    | Default filename in the directory. Just for GET request. ex:'index.html' |
+| `_404`        | The file to return in 'file not found' case. Just for GET request. ex:'404.html' |
 
 ## Auth interface
 If parameter `_auth` is defined it is used for authorization. 

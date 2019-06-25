@@ -28,8 +28,10 @@ var get = function(r){
 
 	// Check existance
 	if(!fs.existsSync(r.file)){
-		r.server.endWithError(r,"File not found");
-		return;
+		if(r._404)
+			r.file = getFilePath(r, r._404);
+		else	
+			return	r.server.endWithError(r,"File not found");
 	}
 
 	// Read the file parameters
