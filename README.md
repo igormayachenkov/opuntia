@@ -62,7 +62,7 @@ Allows upload and download files. So could be used as a static WEB-server.
 
 ## Auth interface
 If parameter `_auth` is defined it is used for authorization. 
-The object stored as this parameter must implement method checkAuthorized(r,next)
+The object stored as this parameter must implement method: async checkAuthorized(r)
 
 ## Config
 To the Server constructor takes two parameters: config & router.

@@ -1,6 +1,7 @@
 "use strict"
 const opuntia = require("../");
 
+
 //-------------------------------------------------------------------------------------------------
 // DATA
 var books = [
@@ -15,7 +16,10 @@ var router = {
 	h_get:{
 		title:"Info",
 		descr:"Public information about the API-server",
-		action: function(r){r.server.endWithSuccess(r, {message:"API server base info"});}
+		action: function(r){
+			//throw new opuntia.ApiError(405,"api error"); 
+			r.server.endWithSuccess(r, {message:"API server base info"});
+		}
 	},
 	// The router
 	router: {

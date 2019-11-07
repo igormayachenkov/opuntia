@@ -1,5 +1,6 @@
 "use strict"
-const url		= require("url");
+const url	 = require("url");
+const ApiError = require("./error.js");
 
 module.exports = class {
 
@@ -199,44 +200,57 @@ module.exports = class {
 		}
 
 		//---------------------------------------------
-		// CALL HTTP HANDLER
+		// CALL HTTP HANDLER for the method
 		const handler = r.node["h_"+r.request.method.toLowerCase()];
-
-		// "action" - the request handler function
-		// Is the node Action? -> try to do it
 		if(handler){
 			// Check the correct path usage: action must be the last leaf (+ parameters)
 			// If the tail of the path is used as parameters for the action
 			// "pathParams" path parameters count
 			var pCount = handler.pathParams?handler.pathParams:0;
 			if(pCount>=0 && (r.path.level != r.path.segments.length - pCount)){
-				r.server.endNotFound(r); // incorrect path
+				r.server.endWithErrorCode(404,"resource "+r.path.src+" not found"); // incorrect path
 				return;
 			}
 
-			// Define the next step as a function
-			var doAction = function(){
-				// RECEIVE BODY (if exists) & DO ACTION
-				// "skipBody" - do not receive body before action call
-				if(r.request.headers['content-length'] && !handler.skipBody)
-					r.server.receivePOSTdata(r, handler.action);
-				else
-					handler.action(r);
-			}
-
-			// Check authorization if exists and do action
-			// "skipAuth" - skip autherization for the action
-			if(r._auth && !handler.skipAuth)
-				r._auth.checkAuthorized(r,doAction);
-			else
-				doAction();
-
+			// Call the handler in try-catch wrapper
+			this.callHandler(r,handler);
 			return;
 		}
 		
 		// Not finished yet? -> wrong method
 		r.server.endWithError(r,"method "+r.request.method+" not supported for path "+r.path.src);
 	}
+
+	//-------------------------------------------------------------------------------------------------
+	// HANDLER WRAPPER
+	// Common error hanling is here
+	async callHandler(r, handler){
+		try{
+			// Check authorization if exists and do action
+			// "skipAuth" - skip autherization for the action
+			if(r._auth && !handler.skipAuth)
+				await r._auth.checkAuthorized(r);
+
+			// RECEIVE BODY (if exists)
+			// "skipBody" - do not receive body before action call
+			if(r.request.headers['content-length'] && !handler.skipBody)
+				await r.server.receivePOSTdata(r);
+
+			// DO ACTION
+			await handler.action(r);
+
+		}catch(error){
+			//console.log("ERROR: ",error);
+			if(error.code){
+				r.server.endWithErrorCode(r, error.code, error.message);
+			}else if(error instanceof Error){
+				r.server.endWithError(r, error.stack);
+			}else{
+				r.server.endWithError(r, error.toString());
+			}
+		}
+	}
+
 
 	//-------------------------------------------------------------------------------------------------
 	// VERIFY NODEs
@@ -339,10 +353,6 @@ module.exports = class {
 	endWithError(r, errorText){
 		this.endWithErrorCode(r,404,errorText)
 	}
-	// File not found error
-	endNotFound(r){
-		this.endWithError(r, "resource "+r.path.src+" not found");
-	}
 
 	// Finish the response with the success
 	endWithSuccess(r, json){
@@ -381,47 +391,48 @@ module.exports = class {
 	// fill the next field in r object: 
 	//		- data			
 	// 		- data_length
-	receivePOSTdata(r, callback){
+	async receivePOSTdata(r){
+		return new Promise(function(resolve){
+			// VERIFY content-type 
+			var contentType   = r.request.headers['content-type'];
+			if(!contentType)
+				throw "Content-Type is undefined";
+			if( contentType.search('application/json') < 0 
+			&&  contentType.search('text/plain') < 0 
+			&&  contentType.search('application/x-www-form-urlencoded') < 0 )
+				throw  'unsupported Content-Type: '+contentType;
 
-		// VERIFY content-type 
-		var contentType   = r.request.headers['content-type'];
-		if(!contentType)
-			return this.endWithError(r,"Content-Type is undefined");
-		if( contentType.search('application/json') < 0 
-		&&  contentType.search('text/plain') < 0 
-		&&  contentType.search('application/x-www-form-urlencoded') < 0 )
-			return this.endWithError(r,'unsupported Content-Type: '+contentType);
+			// VERIFY content-length
+			var contentLength = r.request.headers['content-length'];
+			if(!contentLength)
+				throw "Content-Length is undefined";
+				contentLength = parseInt(contentLength);
+			if(r.server.config.REQUEST_BODY_LIMIT && r.server.config.REQUEST_BODY_LIMIT<contentLength)
+				throw "The request body limit is exceeded";
 
-		// VERIFY content-length
-		var contentLength = r.request.headers['content-length'];
-		if(!contentLength)
-			return this.endWithError(r,"Content-Length is undefined");
-			contentLength = parseInt(contentLength);
-		if(this.config.REQUEST_BODY_LIMIT && this.config.REQUEST_BODY_LIMIT<contentLength)
-			return this.endWithError(r,"The request body limit is exceeded");
-
-		
-		// LOAD request DATA
-		var data = "";	// data as a string
-		var length = 0; // length of the request body in bytes (not the result string length)
-		r.request.addListener("data", function(chunk) {
-			// Chunk is a Buffer https://nodejs.org/api/buffer.html
-			data 	+= chunk.toString('utf8')
-			length	+= chunk.length; 
-			// Check limit here too?
-			//...
-		});
-		
-		r.request.addListener("end", function() {
-			// Parse data
-			try{
-				r.data_length = length;
-				r.data = JSON.parse(data);
-			}catch(e){
-				return r.server.endWithError(r,"Can not parse the request data as JSON");
-			}
-			// DO ACTION
-			callback(r);
+			
+			// LOAD request DATA
+			var data = "";	// data as a string
+			var length = 0; // length of the request body in bytes (not the result string length)
+			r.request.addListener("data", function(chunk) {
+				// Chunk is a Buffer https://nodejs.org/api/buffer.html
+				data 	+= chunk.toString('utf8')
+				length	+= chunk.length; 
+				// Check limit here too?
+				//...
+			});
+			
+			r.request.addListener("end", function() {
+				// Parse data
+				try{
+					r.data_length = length;
+					r.data = JSON.parse(data);
+				}catch(e){
+					throw "Can not parse the request data as JSON";
+				}
+				// SUCCESS
+				resolve();
+			});
 		});
 	}
 
