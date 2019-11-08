@@ -1,6 +1,6 @@
 "use strict"
 const opuntia = require("../");
-
+const ApiError = opuntia.error.ApiError;
 
 //-------------------------------------------------------------------------------------------------
 // DATA
@@ -17,7 +17,7 @@ var router = {
 		title:"Info",
 		descr:"Public information about the API-server",
 		action: function(r){
-			//throw new opuntia.ApiError(405,"api error"); 
+			//throw new ApiError(405,"api error"); 
 			r.server.endWithSuccess(r, {message:"API server base info"});
 		}
 	},

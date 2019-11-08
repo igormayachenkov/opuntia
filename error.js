@@ -1,5 +1,5 @@
 // ApiError
-module.exports = class ApiError{
+class ApiError{
 	constructor(code, msg){
 		this.code = code;
 		this.message = msg;
@@ -8,3 +8,7 @@ module.exports = class ApiError{
 		return this.message;
 	}
 }
+
+module.exports = {
+	ApiError
+};

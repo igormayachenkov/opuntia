@@ -1,6 +1,6 @@
 "use strict"
 const url	 = require("url");
-const ApiError = require("./error.js");
+const ApiError = require("./error.js").ApiError;
 
 module.exports = class {
 
@@ -240,8 +240,8 @@ module.exports = class {
 			await handler.action(r);
 
 		}catch(error){
-			//console.log("ERROR: ",error);
-			if(error.code){
+			console.log("ERROR: ",error);
+			if(error instanceof ApiError){
 				r.server.endWithErrorCode(r, error.code, error.message);
 			}else if(error instanceof Error){
 				r.server.endWithError(r, error.stack);
