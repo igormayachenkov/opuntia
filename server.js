@@ -240,7 +240,7 @@ module.exports = class {
 			await handler.action(r);
 
 		}catch(error){
-			console.log("ERROR: ",error);
+			//console.log("ERROR: ",error);
 			if(error instanceof ApiError){
 				r.server.endWithErrorCode(r, error.code, error.message);
 			}else if(error instanceof Error){
