@@ -1,6 +1,6 @@
 {
   "name": "opuntia",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A framework for WEB API building",
   "main": "index.js",
   "repository": {

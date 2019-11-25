@@ -208,7 +208,7 @@ module.exports = class {
 			// "pathParams" path parameters count
 			var pCount = handler.pathParams?handler.pathParams:0;
 			if(pCount>=0 && (r.path.level != r.path.segments.length - pCount)){
-				r.server.endWithErrorCode(404,"resource "+r.path.src+" not found"); // incorrect path
+				r.server.endWithErrorCode(r,404,"resource "+r.path.src+" not found"); // incorrect path
 				return;
 			}
 
