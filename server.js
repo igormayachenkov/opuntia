@@ -20,8 +20,6 @@ module.exports = class {
 				break;
 			case 'https:': 
 				if(!this.config.PORT) this.config.PORT = 443;  
-				if(!this.config.HTTPS_KEY || !this.config.HTTPS_CRT) 
-					throw 'Error: config.HTTPS_KEY or config.HTTPS_CRT is undefined';
 				break;
 			default: 
 				throw 'Error: the config.PROTOCOL value "'+this.config.PROTOCOL+'" is incorrect';
@@ -274,21 +272,29 @@ module.exports = class {
 
 	//-------------------------------------------------------------------------------------------------
 	// START SERVER
-	listen(onStart){
+	// options : createServer(options) https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options
+	start(options, onStart){
 		// CREATE WEB SERVER
 		if(this.config.PROTOCOL=="http:"){
 			// HTTP
-			var webServer = require("http").createServer();
+			var webServer = require("http").createServer(options);
 		}else 
 		if(this.config.PROTOCOL=="https:"){
 			// HTTPS
-			const fs = require("fs");
-			var webServer = require("https").createServer(
-				{
+			if(!options){
+				// Load certificates from files
+				const fs = require("fs");
+				if(!this.config.HTTPS_KEY || !this.config.HTTPS_CRT) 
+					throw 'Error: config.HTTPS_KEY or config.HTTPS_CRT is undefined';
+				var options = {
 					key:  fs.readFileSync(this.config.HTTPS_KEY), //'private-key.pem'),
 					cert: fs.readFileSync(this.config.HTTPS_CRT)  //'certificate.pem')
-				}
-			);
+				};
+				if(this.config.HTTPS_CA)
+					options.ca = fs.readFileSync(this.config.HTTPS_CA)
+			}
+			// Start server
+			var webServer = require("https").createServer(options);
 		}else{
 			console.log("incorrect PROTOCOL value");
 			return;
@@ -305,6 +311,8 @@ module.exports = class {
 		// START WEB SERVER
 		webServer.listen(this.config.PORT, function(){this.onStart(onStart);}.bind(this));
 	}
+
+	listen(onStart){this.start(undefined, onStart);} // old variant
 
 	onStart(onStart){
 		try{

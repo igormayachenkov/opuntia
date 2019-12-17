@@ -74,5 +74,6 @@ The config properties:
 | `PORT`        | 8080 for http, 443 for https | The web server port. |
 | `HTTPS_KEY`   | undefined | path to a private key file for https protocol. |
 | `HTTPS_CRT`   | undefined | path to a certificate file for https protocol. |
+| `HTTPS_CA`    | undefined | path to a CA certificate file for https protocol. |
 | `REQUEST_BODY_LIMIT`   | undefined | the number of bytes that are allowed in a request body |
 

@@ -123,7 +123,16 @@ var server = new opuntia.Server(router, {
 		REQUEST_BODY_LIMIT	: 1024 
 	}
 );
-server.listen(function(){
+const options = null;
+// Parameter 'options' example (for https):
+// const fs = require("fs");
+// const options = {
+// 	key:  fs.readFileSync("self.key"),
+// 	cert: fs.readFileSync("self.crt"),
+// 	passphrase: "qwerty"
+// }
+
+server.start(options, function(){
 	// START STATIC WEB SERVER
 	var testUrl   = "http://localhost:"+server.config.PORT+"/doc/index.html";
 	console.log("Open the next URL for test:\n"+testUrl);
