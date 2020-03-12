@@ -182,17 +182,17 @@ $(document).ready(function(){
 		window.location = url;
 	}
 	
-	$(".open").click(function(){
-		$(this).hide();
-		$(this).next().slideDown();
-	});
+	// $(".open").click(function(){
+	// 	$(this).hide();
+	// 	$(this).next().slideDown();
+	// });
 
-	$(".close").click(function(){
-		$(this).parent().slideUp(function(){
-			$(this).prev().show();
-		});
+	// $(".close").click(function(){
+	// 	$(this).parent().slideUp(function(){
+	// 		$(this).prev().show();
+	// 	});
 		
-	});
+	// });
 
 	//------------------------------------------------------------------------------------------
 	// CONTENT LOADER
@@ -497,5 +497,31 @@ $(document).ready(function(){
 		}
 	);
 
+	// DATE TOOLS
+	var dateTools = $(".date_tools");
+	$(".date_tools .convert_string").click(function(){
+		var str = $(".date_tools .string").val();
+		displayDate( new Date(str) );
+	});
+	$(".date_tools .convert_number").click(function(){
+		var str = $(".date_tools .string").val();
+		var n = Number(str);
+		displayDate( new Date(n) );
+	});
+	var displayDate = function(d){
+		try{
+			$(".date_tools .getTime"	).text( d.getTime() );
+			$(".date_tools .toISOString").text( d.toISOString() );
+			$(".date_tools .toString"	).text( d.toString() );
+		}catch(err){
+			alert(err);
+		}
+	}
+	$(".date_tools .close").click(function(){
+		dateTools.hide();
+	});
+	$(".open_date_tools").click(function(){
+		dateTools.show();
+	});
 });
 

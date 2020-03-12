@@ -9,10 +9,22 @@
 	<script src="index.js"></script>
 </head>
 <body>
-	<header><b id="backend_server_url"></b>BACKEND Test<span id="auth-block">user: <b id="auth-user">???</b></span></header>
+	<header>
+		<b id="backend_server_url"></b>BACKEND Test
+		<span class="open_date_tools">Date Tools</span>
+	</header>
 	<aside>
 	</aside>
 	<div class="content">
+	</div>
+	<div class="date_tools">
+			<div>Input:<input class="string" value=""/><button class="convert_string">Convert as string</button><button class="convert_number">Convert as number</button></div>
+			<h5>Result:</h5>
+			<table>
+				<tr><th>getTime()</th><th>toISOString()</th><th>toString()</th></tr>
+				<tr><td class="getTime">?</td><td class="toISOString">?</td><td class="toString">?</td></tr>
+			</table>
+			<div class="close">X</div>
 	</div>
 </body>
 </html>
