@@ -185,14 +185,26 @@ module.exports = class {
 		
 		response.statusCode = 200;
 		response.setHeader(	"Content-Type"						, "application/json");
-		if(request.headers.origin)
-		response.setHeader(	"Access-Control-Allow-Origin"		, request.headers.origin); //"*",
-		response.setHeader(	"Access-Control-Allow-Credentials"	, true);
-		response.setHeader(	"Access-Control-Allow-Methods"		, "GET,POST,OPTIONS");
-		response.setHeader(	"Access-Control-Allow-Headers"		, "Session, Origin, X-Requested-With, Content-Type, Accept, Version");
 
+		//---------------------------------------------------
+		// CORS
+		if(request.headers.origin){
+			response.setHeader(	"Access-Control-Allow-Origin", request.headers.origin); // Mirrow the request origin => Allow any origin (not "*" to allow cookie)
+			response.setHeader(	"Access-Control-Allow-Credentials", "true"); // allow request with cookie
+		}
+		// Expose some data to the script
+		response.setHeader(	"Access-Control-Expose-Headers", "Content-Length");
 		// OPTIONS ?
 		if(r.request.method=="OPTIONS"){
+			// Allowed methods list
+			response.setHeader(	"Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+			// Allow all requested headers
+			let requestedHeaders = request.headers["access-control-request-headers"];
+			if(requestedHeaders)
+				response.setHeader(	"Access-Control-Allow-Headers", requestedHeaders);
+			// Prevent next options call for 1 hour
+			response.setHeader(	"Access-Control-Max-Age", "3600");
+			// Answer without body
 			r.server.endWithSuccess(r, null);
 			return;
 		}
