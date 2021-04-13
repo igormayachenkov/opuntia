@@ -8,9 +8,9 @@ var getFilePath = function(r, filename){
 // maps file extention to MIME typere
 const map = {
     '.ico': 'image/x-icon',
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.json': 'application/json',
+    '.html':'text/html',
+    '.js':  'text/javascript',
+    '.json':'application/json',
     '.css': 'text/css',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
@@ -18,7 +18,8 @@ const map = {
     '.mp3': 'audio/mpeg',
     '.svg': 'image/svg+xml',
     '.pdf': 'application/pdf',
-    '.doc': 'application/msword'
+	'.doc': 'application/msword',
+	'.txt': 'text/plain'
 };
 
 // SEND THE FILE CONTENT
@@ -97,6 +98,23 @@ var sendFile = function(r){
 
 // RECEIVE THE FILE CONTENT
 var post = function(r){
+
+	// Get & Verify filename
+	var filename = getFilename(r);
+	if(!filename){		
+		r.server.endWithError(r,"filename is undefined");
+		return;
+	}
+	r.file = getFilePath(r, filename)
+
+	// DO Receive
+	receiveFile(r)
+}
+
+// RECEIVE FILE & CLOSE REQUEST
+// r.file
+var receiveFile = function(r){
+
 	// VERIFY content-type & content-length
 	var contentType   = r.request.headers['content-type'];
 	var contentLength = r.request.headers['content-length'];
@@ -113,17 +131,10 @@ var post = function(r){
 		r.server.endWithError(r,"Content-Type is unsupported");
 		return;
 	}
-	
-	// Verify filename
-	var filename = getFilename(r);
-	if(!filename){		
-		r.server.endWithError(r,"filename is undefined");
-		return;
-	}
-	
+		
 	// Open file
 	try{
-		var file = fs.openSync(getFilePath(r, filename), 'w')
+		var file = fs.openSync(r.file, 'w')
 	}catch(e){
 		r.server.endWithError(r,"File open error. filename: "+filename);
 		return;
@@ -194,16 +205,10 @@ exports.post = {
 
 //-----------------------------------------------------------------------------------------------
 // INTENAL INTERFACE (to use in another modules)
-exports.sendFile = sendFile;
+exports.sendFile    = sendFile;
+exports.receiveFile = receiveFile;
 
 //---internal-interface------------------------------------------------
-
-
-
-
-
-
-
 
 // DELETE FILE
 /*exports.del = function(filename, response){

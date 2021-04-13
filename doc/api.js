@@ -47,8 +47,10 @@ function API(PARAM) {
 			type: 	method.toUpperCase(),
 			url: 	URL_SERVER + path
 		};
-		if(data) 
+		if(data) {
 			p.data = JSON.stringify(data);
+			p.contentType='application/json';
+		}
 
 		sendAJAX(p, onDone, onFail);
 	}
