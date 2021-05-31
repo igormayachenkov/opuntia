@@ -241,10 +241,21 @@ module.exports = class {
 			if(r._auth && !handler.skipAuth)
 				await r._auth.checkAuthorized(r);
 
-			// RECEIVE BODY (if exists)
+			// RECEIVE BODY (if exists) 
 			// "skipBody" - do not receive body before action call
-			if(r.request.headers['content-length'] && !handler.skipBody)
-				await r.server.receivePOSTdata(r);
+			if(r.request.headers['content-length'] && !handler.skipBody){
+                // Receive as Buffer
+				await r.server.receivePOSTdata(r);                                
+                // Convert to json 
+                if(handler.requestBodyType=='json'){
+                    try{
+                        r.data = JSON.parse(r.data.toString('utf8'));
+                    }catch(e){
+                        throw "Can not parse the request data as JSON"
+                    }
+                }
+            }
+            
 
 			// DO ACTION
 			await handler.action(r);
@@ -412,16 +423,7 @@ module.exports = class {
 	//		- data			
 	// 		- data_length
 	async receivePOSTdata(r){
-		return new Promise(function(resolve){
-			// VERIFY content-type 
-			var contentType   = r.request.headers['content-type'];
-			if(!contentType)
-				throw "Content-Type is undefined";
-			if( contentType.search('application/json') < 0 
-			&&  contentType.search('text/plain') < 0 
-			&&  contentType.search('application/x-www-form-urlencoded') < 0 )
-				throw  'unsupported Content-Type: '+contentType;
-
+		return new Promise(function(resolve,reject){
 			// VERIFY content-length
 			var contentLength = r.request.headers['content-length'];
 			if(!contentLength)
@@ -430,29 +432,24 @@ module.exports = class {
 			if(r.server.config.REQUEST_BODY_LIMIT && r.server.config.REQUEST_BODY_LIMIT<contentLength)
 				throw "The request body limit is exceeded";
 
-			
-			// LOAD request DATA
-			var data = "";	// data as a string
-			var length = 0; // length of the request body in bytes (not the result string length)
-			r.request.addListener("data", function(chunk) {
-				// Chunk is a Buffer https://nodejs.org/api/buffer.html
-				data 	+= chunk.toString('utf8')
-				length	+= chunk.length; 
-				// Check limit here too?
-				//...
-			});
-			
-			r.request.addListener("end", function() {
-				// Parse data
-				try{
-					r.data_length = length;
-					r.data = JSON.parse(data);
-				}catch(e){
-					throw "Can not parse the request data as JSON";
-				}
-				// SUCCESS
-				resolve();
-			});
+
+            // LOAD request DATA as Buffer
+            const chunks = []
+            r.request.addListener("data", function(chunk) {
+                // Chunk is a Buffer https://nodejs.org/api/buffer.html
+                chunks.push(chunk)
+            });
+            
+            r.request.addListener("end", function() {
+                r.data = Buffer.concat(chunks)
+                r.data_length = r.data.length // received data length 
+                // Verify content length
+                if(contentLength!=r.data.length) 
+                    reject("content-length "+contentLength+
+                    " does not equal received data length "+r.data.length); // throw here crashes the server!
+                // SUCCESS
+                resolve();
+            });
 		});
 	}
 
@@ -461,7 +458,6 @@ module.exports = class {
 		// Fill data object
 		var d = {
 			time:		r.time,
-			user:		r.session?r.session.user_id:0,
 			ip:			r.request.connection.remoteAddress ? //The string representation of the remote IP address. For example, '74.125.127.100' or '2001:4860:a005::68'. Value may be undefined if the socket is destroyed (for example, if the client disconnected).
 						r.request.connection.remoteAddress.replace(/^.*:/, '') : "?" ,
 			method:		r.request.method,
@@ -475,7 +471,6 @@ module.exports = class {
 		// Log to console
 		console.log(
 			new Date(d.time).toISOString()+" "
-			+ d.user +" "
 			+ d.ip +" " 
 			+ d.method+" "
 			+ d.path+" "

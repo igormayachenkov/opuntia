@@ -18,7 +18,6 @@ In requests with a body the next headers must be defined:
 | Header | Description   |
 | ------------- |:-----------|
 | `Content-Length` | The content length in bytes. The maximum value is defined by config.REQUEST_BODY_LIMIT |
-| `Content-Type` | The content MIME type. Allowed values: `application/json`, `text/plain`, `application/x-www-form-urlencoded`  |
 
 ## Responce Format (excliding module files)
 Respose is always in JSON format (Content-Type:`application/json`)
@@ -42,7 +41,8 @@ The handler's name must have the nex format:
 | Property name | Function   |
 | ------------- |:-----------|
 | `action`      | the main request handler function |
-| `requestBodyType` | request body type (default 'json') |
+| `requestBodyType` | request body type: json|file ('json' - parse data as json) |
+| `responseBodyType` | request body type: json|file (for autodoc) |
 | `pathParams`  | the path tail segments count used as parameters (-1 any count) |
 | `title`       | doc tool title  |
 | `descr`       | doc tool description  |
