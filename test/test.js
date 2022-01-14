@@ -112,8 +112,24 @@ var router = {
 					r.server.endWithSuccess(r, {index:index});
 				}
 			}
-		}
-	}
+		},
+        // HTML reports
+        report:{
+            $title: "HTML Reports",
+            h_get:{
+                title: "Total",
+                descr: "Total list and statistics",
+                responseBodyType:"html",
+                action: function(r){
+                    r.server.endWithSuccessBinary(r,
+                        "<html><body>"+
+                        "<h3>HTML Report Example</h3>"+
+                        `<div>Total books number: <b>${books.length}</b></div>`+
+                        "</body></html>")
+                }
+            }
+        }
+    }
 };
 
 // CREATE & START API SERVER

@@ -181,19 +181,27 @@ $(document).ready(function(){
 		//window.open(url);
 		window.location = url;
 	}
+
+    var openInIFrame = function(box,method,node){
+        clearResult(box);
+		// Read path parameters
+		var path = readPathParams(box, method, node);
+		if(!path) return;
+
+        var url = API.getServerURL()+path
+        var iframe = $(`<iframe></iframe>`)
+        respBody.html("");
+        respBody.append(iframe);
+        iframe.on('load',function(){
+			result.html("SUCCESS");
+		})
+		.on('error', function() {
+			result.addClass("error");
+			result.html("error");
+		});
+        iframe.attr('src', url)
+    }
 	
-	// $(".open").click(function(){
-	// 	$(this).hide();
-	// 	$(this).next().slideDown();
-	// });
-
-	// $(".close").click(function(){
-	// 	$(this).parent().slideUp(function(){
-	// 		$(this).prev().show();
-	// 	});
-		
-	// });
-
 	//------------------------------------------------------------------------------------------
 	// CONTENT LOADER
 	var ctlContent = $("body > div.content");
@@ -335,32 +343,45 @@ $(document).ready(function(){
 
 		// SEND BUTTON 
 		const responseBodyType = handler.responseBodyType ? handler.responseBodyType : 'json';
-		if(responseBodyType=="file"){
-			// FILE to be received
-			// Button as-image
-			var btnAsImage = $('<button class="as-file">Download as an image</button>');
-			box.append(btnAsImage);
-			btnAsImage.click(function(){
-				getAsImage(box, method, node);
-			});			
+		switch(responseBodyType){
+            case "file":{// FILE to be received
+                // Button as-image
+                var btnAsImage = $('<button class="as-file">Download as an image</button>');
+                box.append(btnAsImage);
+                btnAsImage.click(function(){
+                    getAsImage(box, method, node);
+                });			
 
-			// Button as-file
-			var btnAsFile = $('<button class="as-file">Download as a file</button>');
-			box.append(btnAsFile);
-			btnAsFile.click(function(){
-				getAsFile(box, method, node);
-			});			
-		}else if(responseBodyType=="json"){
-			// JSON to be received (default)
-			// Button
-			var btn = $('<button class="as-text">Send Request</button>');
-			box.append(btn);
-			btn.click(function(){
-				sendRequest(box, method, node);
-			});
-		}else{
-			box.append('<div>Unknown responce boody type: '+responseBodyType+'</div>');
-		}
+                // Button as-file
+                var btnAsFile = $('<button class="as-file">Download as a file</button>');
+                box.append(btnAsFile);
+                btnAsFile.click(function(){
+                    getAsFile(box, method, node);
+                });			
+            };break;
+
+            case "json":{ // JSON to be received (default)
+                // Button
+                var btn = $('<button class="as-text">Send Request</button>');
+                box.append(btn);
+                btn.click(function(){
+                    sendRequest(box, method, node);
+                });
+            };break;
+
+            case "html":{ // HTML page
+                // Button
+                var btn = $('<button class="as-text">Open in iframe</button>');
+                box.append(btn);
+                btn.click(function(){
+                    openInIFrame(box, method, node);
+                });
+            };break;
+
+            default: {
+                box.append('<div>Unknown responce boody type: '+responseBodyType+'</div>');
+            }
+        }
 
 
 		// Result

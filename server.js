@@ -184,7 +184,6 @@ module.exports = class {
 		//console.log("time: "+new Date().getTime());
 		
 		response.statusCode = 200;
-		response.setHeader(	"Content-Type"						, "application/json");
 
 		//---------------------------------------------------
 		// CORS
@@ -256,6 +255,13 @@ module.exports = class {
                 }
             }
             
+            // Set the response body type
+            switch(handler.responseBodyType){
+                case 'html': r.response.setHeader("Content-Type", "text/html"); break;
+                case 'file': break; // must be set in the action
+                case 'json':
+                default:     r.response.setHeader("Content-Type", "application/json"); break;
+            }
 
 			// DO ACTION
 			await handler.action(r);
@@ -370,6 +376,7 @@ module.exports = class {
 		// 	"Access-Control-Allow-Origin":"http://localhost"//"*"
 		// });
 		r.response.statusCode = code;
+        r.response.setHeader( "Content-Type", "application/json")
 		r.response.write(JSON.stringify({message:errorText}));
 		r.response.end();	
 		// Log result

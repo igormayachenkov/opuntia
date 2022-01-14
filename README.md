@@ -1,28 +1,10 @@
 # Opuntia. Grow your API like a cactus.
-A framework for WEB API building. The API could be RESTful or not. As you wish.
+A framework for WEB API building.
 
 ## Main Workflow
-A WEB API is a request-response message system. 
 The framework starts a WEB-server which exposed a set of endpoints. 
 A web request URL has the next format: http://host[:port]/path. The path value uniquely identifies the endpoint to handle the request.
-To make an API server based on the framework just make a router object with your custom endpoint handlers.
-
-## Request handling
-1. The framework defines if the path is valid (the appropriate endpoint handler exists). If not the error responce is returned.
-2. For valid endpoint the handler's 'action' method is called with one argument 'r'. The 'r' argument contains all information for the request handling.
-3. The handler must close the request with success or error. 
-
-## Request Body Format (excliding module files)
-The request body must be a string encoded in UTF-8 format which could be parsed to JSON (by JSON.parce() method).
-In requests with a body the next headers must be defined:
-| Header | Description   |
-| ------------- |:-----------|
-| `Content-Length` | The content length in bytes. The maximum value is defined by config.REQUEST_BODY_LIMIT |
-
-## Responce Format (excliding module files)
-Respose is always in JSON format (Content-Type:`application/json`)
-On error the respoce data has the next format: {message:'error message text'}
-
+To make an API server based on the framework just make `Router` with your custom endpoint handlers.
 
 ## Router
 The router object defines the set of the endpoints. The router is just a JavaScript object where each property represents an URL path node.
@@ -34,19 +16,39 @@ A property name prefix defines the property type:
 | `"h_"`      | handler       | defines the endpoint handler (or websocket connection point) |
 | `no prefix` | branch        | defines the next child branch of the router tree |
 
+## Request handling
+1. The framework defines if the path is valid (the appropriate endpoint handler exists in the router). If not the error responce is returned.
+2. For valid endpoint the handler's 'action' method is called with one argument 'r'. The 'r' argument contains all information for the request handling.
+3. The handler must close the request with success or error. 
+
 ## Handler format
-The handler's name must have the nex format:
+The handler's name must have the next format:
 'h_<HTTP_REQUEST_METHOD>' defines the HTTP method or 
 'h_wss' defines WebSocket connection point
 | Property name | Function   |
 | ------------- |:-----------|
 | `action`      | the main request handler function |
-| `requestBodyType` | request body type: json|file ('json' - parse data as json) |
-| `responseBodyType` | request body type: json|file (for autodoc) |
+| `requestBodyType`  | request  body type: json|file ('json' - parse data as json) |
+| `responseBodyType` | response body type: json|html|file (see description below)|
 | `pathParams`  | the path tail segments count used as parameters (-1 any count) |
 | `title`       | doc tool title  |
 | `descr`       | doc tool description  |
 | `testBody`    | doc tool sample data  |
+
+## Request Body Format (excliding module "files")
+The request body must be a string encoded in UTF-8 format which could be parsed to JSON (by JSON.parce() method).
+In requests with a body the next headers must be defined:
+| Header | Description   |
+| ------------- |:-----------|
+| `Content-Length` | The content length in bytes. The maximum value is defined by config.REQUEST_BODY_LIMIT |
+
+## Response Format
+| parameter `responseBodyType`| header `Content-Type` |
+| :--------- | :----------| 
+| json | `application/json` default|
+| html | `text/html` | 
+| file | depends on the file type | 
+On error response data has the next format: {message:'error message text'}
 
 ## Auto documentation tool
 /doc contains files for the auto documentation page.
