@@ -212,6 +212,8 @@ module.exports = class {
 		// CALL HTTP HANDLER for the method
 		const handler = r.node["h_"+r.request.method.toLowerCase()];
 		if(handler){
+            // Add handler to the router
+            r.handler = handler
 			// Check the correct path usage: action must be the last leaf (+ parameters)
 			// If the tail of the path is used as parameters for the action
 			// "pathParams" path parameters count
@@ -237,11 +239,8 @@ module.exports = class {
 		try{
 			// Check authorization if exists and do action
 			// "skipAuth" - skip autherization for the action
-			if(r._auth && !handler.skipAuth){
-                if(handler.checkAuthorized)
-                    await handler.checkAuthorized(r) // special auth checker
-                else                        
-                    await r._auth.checkAuthorized(r) // common auth function
+			if(r._auth && !handler.skipAuth){                       
+                await r._auth.checkAuthorized(r) // common auth function
             }
 
 			// RECEIVE BODY (if exists) 
