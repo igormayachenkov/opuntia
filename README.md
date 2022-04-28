@@ -34,6 +34,7 @@ The handler's name must have the next format:
 | `title`       | doc tool title  |
 | `descr`       | doc tool description  |
 | `testBody`    | doc tool sample data  |
+| `checkAuthorized`    | custom authorization checker for the handler (_auth.checkAuthorized otherwise) |
 
 ## Request Body Format (excliding module "files")
 The request body must be a string encoded in UTF-8 format which could be parsed to JSON (by JSON.parce() method).

@@ -237,8 +237,12 @@ module.exports = class {
 		try{
 			// Check authorization if exists and do action
 			// "skipAuth" - skip autherization for the action
-			if(r._auth && !handler.skipAuth)
-				await r._auth.checkAuthorized(r);
+			if(r._auth && !handler.skipAuth){
+                if(handler.checkAuthorized)
+                    await handler.checkAuthorized(r) // special auth checker
+                else                        
+                    await r._auth.checkAuthorized(r) // common auth function
+            }
 
 			// RECEIVE BODY (if exists) 
 			// "skipBody" - do not receive body before action call
