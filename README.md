@@ -43,12 +43,20 @@ In requests with a body the next headers must be defined:
 | `Content-Length` | The content length in bytes. The maximum value is defined by config.REQUEST_BODY_LIMIT |
 
 ## Response Format
+### On Success
 | parameter `responseBodyType`| header `Content-Type` |
 | :--------- | :----------| 
 | json | `application/json` default|
 | html | `text/html` | 
 | file | depends on the file type | 
-On error response data has the next format: {message:'error message text'}
+### On Error
+The response data has the next format: {message:'error message text'}
+| code | meaning |
+| :--------- | :----------| 
+| 500 | Default server error. Caused by an exception in the handler |
+| 401 | Unauthorized. Attempt to get access to an auth-protected resource  | 
+| 404 | Resource not found. Wrong path.  | 
+
 
 ## Auto documentation tool
 /doc contains files for the auto documentation page.

@@ -392,7 +392,7 @@ module.exports = class {
 	}
 	// COMMON ERROR 
 	endWithError(r, errorText){
-		this.endWithErrorCode(r,404,errorText)
+		this.endWithErrorCode(r,500,errorText)
 	}
 
 	// Finish the response with the success

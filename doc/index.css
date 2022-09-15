@@ -45,7 +45,7 @@ aside{
 	background:#ddd; 
 	position:absolute;
 	padding:1em 0em;
-	width:20em;
+	width:22em;
 	top:2em;
 	left:0px;
 	bottom:0px;
@@ -90,7 +90,7 @@ aside .icon.handler {
 	position:absolute;
 	padding:0em 0em;
 	top:2em;
-	left:20em;
+	left:22em;
 	bottom:0px;
 	right:0px;
 	overflow-y:auto;
@@ -152,23 +152,15 @@ h1 b {
 	font-weight: normal;
 	color:#888;
 }
-.box i{/* parameter */
-	display: inline-block;
-	color:#00f;
-}
-.box i:before{content:"<"}
-.box i:after {content:">"}
-
-.box b{/* bold */
-	font-size: 110%;
-}
 .box table {
-	font-family:monospace;
 	border-collapse: collapse;
 }
 .box table td {
 	border: 1px solid grey;
-	padding: 1ex 1em;
+	padding: 0.3ex 1ex;
+}
+.box table td:first-child {
+	font-family:monospace;
 }
 
 /* BOX "HOME" */
@@ -264,7 +256,7 @@ button{
 	position:absolute;
 	padding:1em;
 	top:2em;
-	left:20em;
+	left:22em;
 	border:2px solid black;
 	border-radius:1em;
 	background: #eee;
