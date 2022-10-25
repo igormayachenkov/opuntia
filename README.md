@@ -23,8 +23,7 @@ A property name prefix defines the property type:
 
 ## Handler format
 The handler's name must have the next format:
-'h_<HTTP_REQUEST_METHOD>' defines the HTTP method or 
-'h_wss' defines WebSocket connection point
+'h_<HTTP_REQUEST_METHOD>' defines the HTTP method
 | Property name | Function   |
 | ------------- |:-----------|
 | `action`      | the main request handler function |

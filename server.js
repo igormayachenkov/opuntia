@@ -110,63 +110,6 @@ module.exports = class {
 	}
 
 	//-------------------------------------------------------------------------------------------------
-	// WS: WEB SOCKET SERVER
-	createWSS(){
-		if(!this.WebSocket)
-			this.WebSocket = require('ws'); 
-
-		const wss = new this.WebSocket.Server({ noServer: true });
-
-		wss.on('connection', function connection(ws) {
-			if(ws.r && ws.r.node.h_ws)
-				ws.r.node.h_ws.onConnection(ws);
-		});
-
-		return wss;
-	}
-
-	//-------------------------------------------------------------------------------------------------
-	// WS: MAIN UPGRADE HANDLER
-	onUpgrade(request, socket, head){
-		// ROUTE
-		var r = this.fillRouteInfo(request);
-		r.request  = request;
-		//r.response = response;
-
-		console.log('onUpgrade', r.path.segments);
-
-		// Check websocket server existance
-		if(!r.wss){
-			console.log('The node route (r-object) does not contain wss parameter');
-			socket.destroy();
-			return;
-		}
-
-		// Check node websocket handler
-		var handler = r.node.h_ws;
-		if(!handler){
-			console.log('The node does not contain ws handler');
-			socket.destroy();
-			return;
-		}
-
-		// Connect socket
-		var connectSocket = function(){
-			r.wss.handleUpgrade(request, socket, head, function done(ws) {
-				ws.r = r; // attach the route to the socket
-				r.wss.emit('connection', ws, request);
-			});
-		}
-
-		// Check authorization if exists and do action
-		// "skipAuth" - skip autherization for the action
-		if(r._auth)
-			r._auth.checkAuthorized(r, connectSocket);
-		else
-			connectSocket();
-	}
-
-	//-------------------------------------------------------------------------------------------------
 	// MAIN REQUEST HANDLER
 	onRequest(request, response) {
 		//--------------------------------------------------
@@ -338,7 +281,6 @@ module.exports = class {
 
 		// SET HANDLERS
 		webServer.on("request",this.onRequest.bind(this)); // regular request
-		webServer.on("upgrade",this.onUpgrade.bind(this)); // upgrade request for WebSocket
 			
 		// START WEB SERVER
 		webServer.listen(this.config.PORT, function(){this.onStart(onStart);}.bind(this));
@@ -541,6 +483,3 @@ module.exports = class {
 		}
 	}
 }
-	
-
-
